@@ -2,13 +2,8 @@ import random
 import time
 
 TEST_SEED = 2104
+STEPS_PER_ROW = 7
 
-# Number of Sudoku steps shown side-by-side in the terminal.
-# Change to 4 if your terminal is wide enough.
-STEPS_PER_ROW = 3
-
-# Same 10 randomly generated Sudoku start states are reproduced every run.
-# A fixed seed keeps the experiment fair and repeatable for all group members.
 TEST_PLAN = [
     ("T1", "Easy", 24),
     ("T2", "Easy", 26),
@@ -85,7 +80,7 @@ def generate_tests(seed=TEST_SEED):
 
 
 def _grid_lines(grid):
-    """Return one Sudoku board as printable text lines."""
+    """Return one Sudoku board as printable text lines with empty spaces instead of 0s."""
     if grid is None:
         return ["No board available."]
 
@@ -94,12 +89,15 @@ def _grid_lines(grid):
         if row > 0 and row % 3 == 0:
             lines.append("------+-------+------")
 
+        # Convert 0s to blank spaces for clean output display
+        row_vals = [str(v) if v != 0 else " " for v in grid[row]]
+
         lines.append(
-            " ".join(str(v) for v in grid[row][0:3])
+            " ".join(row_vals[0:3])
             + " | "
-            + " ".join(str(v) for v in grid[row][3:6])
+            + " ".join(row_vals[3:6])
             + " | "
-            + " ".join(str(v) for v in grid[row][6:9])
+            + " ".join(row_vals[6:9])
         )
     return lines
 
@@ -233,6 +231,7 @@ def run_single_demo(solver, algorithm_name, test_number=1, pause=False, seed=1):
     print("Max stored  :", result["max_stored"])
     print("Detail      :", result["detail"])
 
+
 def _is_valid(grid, row, col, number):
     if number in grid[row]:
         return False
@@ -269,7 +268,6 @@ def solve(puzzle, seed=1):
         "max_depth": 0,
     }
 
-    # Keep only the successful DFS path.
     path = [[row[:] for row in grid]]
     path_notes = ["Original Sudoku puzzle"]
 
@@ -299,7 +297,6 @@ def solve(puzzle, seed=1):
                 if dfs(depth + 1):
                     return True
 
-                # Dead end: remove this state from the successful path.
                 path.pop()
                 path_notes.pop()
                 grid[row][col] = 0
@@ -321,11 +318,7 @@ def solve(puzzle, seed=1):
     }
 
 
-# Change TEST_NUMBER to 1..10.
-TEST_NUMBER = 1
-
-# False = print all step groups continuously.
-# True = wait for Enter after every row of 3 steps.
+TEST_NUMBER = 10
 PAUSE_BETWEEN_STEPS = False
 
 

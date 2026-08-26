@@ -3,12 +3,8 @@ import time
 
 TEST_SEED = 2104
 
-# Number of Sudoku steps shown side-by-side in the terminal.
-# Change to 4 if your terminal is wide enough.
-STEPS_PER_ROW = 3
+STEPS_PER_ROW = 6
 
-# Same 10 randomly generated Sudoku start states are reproduced every run.
-# A fixed seed keeps the experiment fair and repeatable for all group members.
 TEST_PLAN = [
     ("T1", "Easy", 24),
     ("T2", "Easy", 26),

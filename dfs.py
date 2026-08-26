@@ -89,7 +89,6 @@ def _grid_lines(grid):
         if row > 0 and row % 3 == 0:
             lines.append("------+-------+------")
 
-        # Convert 0s to blank spaces for clean output display
         row_vals = [str(v) if v != 0 else " " for v in grid[row]]
 
         lines.append(
@@ -259,7 +258,7 @@ def _find_empty(grid):
 
 
 def solve(puzzle, seed=1):
-    del seed  # DFS is deterministic; kept only for a common interface.
+    del seed
 
     grid = [row[:] for row in puzzle]
     stats = {

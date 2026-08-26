@@ -89,17 +89,20 @@ def _grid_lines(grid):
     if grid is None:
         return ["No board available."]
 
+    def _cell_text(value):
+        return str(value) if value != 0 else " "
+
     lines = []
     for row in range(9):
         if row > 0 and row % 3 == 0:
             lines.append("------+-------+------")
 
         lines.append(
-            " ".join(str(v) for v in grid[row][0:3])
+            " ".join(_cell_text(v) for v in grid[row][0:3])
             + " | "
-            + " ".join(str(v) for v in grid[row][3:6])
+            + " ".join(_cell_text(v) for v in grid[row][3:6])
             + " | "
-            + " ".join(str(v) for v in grid[row][6:9])
+            + " ".join(_cell_text(v) for v in grid[row][6:9])
         )
     return lines
 

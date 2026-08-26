@@ -89,17 +89,20 @@ def _grid_lines(grid):
     if grid is None:
         return ["No board available."]
 
+    def _cell_text(value):
+        return str(value) if value != 0 else " "
+
     lines = []
     for row in range(9):
         if row > 0 and row % 3 == 0:
             lines.append("------+-------+------")
 
         lines.append(
-            " ".join(str(v) for v in grid[row][0:3])
+            " ".join(_cell_text(v) for v in grid[row][0:3])
             + " | "
-            + " ".join(str(v) for v in grid[row][3:6])
+            + " ".join(_cell_text(v) for v in grid[row][3:6])
             + " | "
-            + " ".join(str(v) for v in grid[row][6:9])
+            + " ".join(_cell_text(v) for v in grid[row][6:9])
         )
     return lines
 
@@ -398,6 +401,8 @@ def solve(
     max_generations=1600,
     mutation_rate=0.40,
     elite_size=12,
+    max_seconds=8.0,
+    max_path_steps=30,
 ):
     start_time = time.perf_counter()
 
@@ -425,8 +430,11 @@ def solve(
     best_score = 10**9
     best_board = None
     stagnant = 0
+    stopped_early = False
 
-    # For GA, a "step" means a new best individual.
+    # For GA, a "step" means a new best individual. Recording is capped at
+    # max_path_steps so a puzzle with hundreds of improving generations
+    # does not produce an excessively long work-through printout.
     path = [[row[:] for row in puzzle]]
     path_notes = ["Original Sudoku puzzle"]
 
@@ -446,11 +454,12 @@ def solve(
             best_board = _copy(current_best)
             stagnant = 0
 
-            path.append(_copy(best_board))
-            path_notes.append(
-                f"Generation {generation}: new best individual; "
-                f"conflicts={best_score}"
-            )
+            if current_score == 0 or len(path) <= max_path_steps:
+                path.append(_copy(best_board))
+                path_notes.append(
+                    f"Generation {generation}: new best individual; "
+                    f"conflicts={best_score}"
+                )
         else:
             stagnant += 1
 
@@ -472,6 +481,13 @@ def solve(
             }
 
         if generation == max_generations:
+            break
+
+        # Safety cap so a stubborn puzzle cannot run past online-compiler
+        # time limits: give up on this generation and report the best
+        # individual found so far instead of looping for max_generations.
+        if time.perf_counter() - start_time > max_seconds:
+            stopped_early = True
             break
 
         effective_mutation = mutation_rate
@@ -512,16 +528,26 @@ def solve(
 
     elapsed = time.perf_counter() - start_time
 
+    # Always show the last-known best board, even if it was skipped
+    # earlier because the path cap had already been reached.
+    if best_board is not None and path[-1] != best_board:
+        path.append(_copy(best_board))
+        path_notes.append(f"Best individual found; conflicts={best_score}")
+
+    detail = (
+        f"generations={generation}, "
+        f"best_conflicts={best_score}, population={population_size}"
+    )
+    if stopped_early:
+        detail += f", stopped early (time limit {max_seconds:.0f}s reached)"
+
     return {
         "solution": best_board if best_score == 0 else None,
         "solved": best_score == 0,
         "time": elapsed,
         "expanded": evaluations,
         "max_stored": population_size,
-        "detail": (
-            f"generations={max_generations}, "
-            f"best_conflicts={best_score}, population={population_size}"
-        ),
+        "detail": detail,
         "path": path,
         "path_notes": path_notes,
     }

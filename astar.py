@@ -419,7 +419,7 @@ def solve(puzzle, seed=1, max_expanded=250000):
 
 
 # Change TEST_NUMBER (1-10) to run a different test scenario.
-TEST_NUMBER = 5
+TEST_NUMBER = 1
 
 # True pauses after each group of steps; False prints continuously.
 PAUSE_BETWEEN_STEPS = False

@@ -3,8 +3,12 @@ import time
 
 TEST_SEED = 2104
 
-STEPS_PER_ROW = 6
+# Number of Sudoku steps shown side-by-side in the terminal.
+# Change to 4 if your terminal is wide enough.
+STEPS_PER_ROW = 3
 
+# Same 10 randomly generated Sudoku start states are reproduced every run.
+# A fixed seed keeps the experiment fair and repeatable for all group members.
 TEST_PLAN = [
     ("T1", "Easy", 24),
     ("T2", "Easy", 26),
@@ -320,11 +324,10 @@ def solve(puzzle, seed=1):
     }
 
 
-# Change TEST_NUMBER to 1..10.
+# Change TEST_NUMBER (1-10) to run a different test scenario.
 TEST_NUMBER = 1
 
-# False = print all step groups continuously.
-# True = wait for Enter after every row of 3 steps.
+# True pauses after each group of steps; False prints continuously.
 PAUSE_BETWEEN_STEPS = False
 
 
